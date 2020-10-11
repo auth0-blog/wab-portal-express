@@ -10,120 +10,114 @@ Learn how to build the foundation of a simple Node.js and Express app by creatin
 
 Learn how to secure a simple Node.js and Express app by adding user authentication with Passport.js and Auth0.
 
-If you want to start from here with the app already built, follow these steps:
+## Get Started
 
-- Clone the repo with `whatabyte-portal` as the local repo name:
-
-```bash
-git clone git@github.com:auth0-blog/whatabyte-portal-node-express.git whatabyte-portal
-```
-
-- Make `whatabyte-portal` the current working directory:
+Clone the repo:
 
 ```bash
-cd whatabyte-portal
+git clone git@github.com:auth0-blog/wab-portal-express.git
 ```
 
-- Check out the `create-basic-app` branch:
+Make `wab-portal-express` the current working directory:
 
 ```bash
-git checkout create-basic-app
+cd wab-portal-express
 ```
 
-- Install the project dependencies:
+Checkout the `add-passport` branch:
+
+```bash
+git checkout add-passport
+```
+
+Install the project dependencies:
 
 ```bash
 npm i
 ```
 
+## Set Up Auth0
 
-## Auth0: Never Compromise on Identity
+### Step 1: Signing up and creating an Auth0 application
 
-At [Auth0](https://auth0.com/), we make heavy use of full-stack JavaScript to help our customers to [manage user identities including password resets, creating and provisioning, blocking and deleting users](https://auth0.com/user-management). We also created a serverless platform, called [Auth0 Extend](https://auth0.com/extend/), that enables customers to run arbitrary JavaScript functions securely. Therefore, it must come as no surprise that using our identity management platform on JavaScript web apps is a piece of cake.
+If you are new to Auth0, <a href="https://auth0.com/signup" data-amp-replace="CLIENT_ID" data-amp-addparams="anonId=CLIENT_ID(cid-scope-cookie-fallback-name)">sign up for a free Auth0 account here</a>.
 
-[Auth0 offers a **free tier**](https://auth0.com/pricing) to get started with modern authentication. Check it out, or <a href="https://auth0.com/signup" data-amp-replace="CLIENT_ID" data-amp-addparams="anonId=CLIENT_ID(cid-scope-cookie-fallback-name)">sign up for a free Auth0 account here</a>!
+Once you are signed in, you are welcomed into the Auth0 Dashboard. In the left sidebar menu, click on ["Applications"](https://manage.auth0.com/#/applications).
 
-![Auth0 Login Page](https://cdn2.auth0.com/docs/media/articles/web/hosted-login.png)
+Next, click on the **Create Application** button present in the "Applications" view. A modal titled "Create Application" opens up. You can provide a **Name** for the application and choose its **type**:
 
-It's as easy as installing the [`auth0-js`](https://github.com/auth0/auth0.js) and [`jwt-decode`](https://github.com/auth0/jwt-decode) node modules like so:
+**Name**: WHATABYTE Express Portal
+
+**Application type**: Regular Web Applications
+
+Click on **Create**.
+
+### Step 2: Creating a communication bridge between Express and Auth0
+
+To configure your Auth0 application, click on the **Settings** tab. Once there, populate the following fields like so:
+
+**Allowed Callback URLs**:
 
 ```bash
-npm install jwt-decode auth0-js --save
+http://localhost:3000/callback, http://localhost:8000/callback
 ```
 
-Then implement the following in your JS app:
+**Allowed Logout URLs**:
 
-```js
-const auth0 = new auth0.WebAuth({
-  clientID: "YOUR-AUTH0-CLIENT-ID", // E.g., you.auth0.com
-  domain: "YOUR-AUTH0-DOMAIN",
-  scope: "openid email profile YOUR-ADDITIONAL-SCOPES",
-  audience: "YOUR-API-AUDIENCES", // See https://auth0.com/docs/api-auth
-  responseType: "token id_token",
-  redirectUri: "http://localhost:9000" //YOUR-REDIRECT-URL
-});
-
-function logout() {
-  localStorage.removeItem("id_token");
-  localStorage.removeItem("access_token");
-  window.location.href = "/";
-}
-
-function showProfileInfo(profile) {
-  var btnLogin = document.getElementById("btn-login");
-  var btnLogout = document.getElementById("btn-logout");
-  var avatar = document.getElementById("avatar");
-  document.getElementById("nickname").textContent = profile.nickname;
-  btnLogin.style.display = "none";
-  avatar.src = profile.picture;
-  avatar.style.display = "block";
-  btnLogout.style.display = "block";
-}
-
-function retrieveProfile() {
-  var idToken = localStorage.getItem("id_token");
-  if (idToken) {
-    try {
-      const profile = jwt_decode(idToken);
-      showProfileInfo(profile);
-    } catch (err) {
-      alert("There was an error getting the profile: " + err.message);
-    }
-  }
-}
-
-auth0.parseHash(window.location.hash, (err, result) => {
-  if (err || !result) {
-    // Handle error
-    return;
-  }
-
-  // You can use the ID token to get user information in the frontend.
-  localStorage.setItem("id_token", result.idToken);
-  // You can use this token to interact with server-side APIs.
-  localStorage.setItem("access_token", result.accessToken);
-  retrieveProfile();
-});
-
-function afterLoad() {
-  // buttons
-  var btnLogin = document.getElementById("btn-login");
-  var btnLogout = document.getElementById("btn-logout");
-
-  btnLogin.addEventListener("click", function() {
-    auth0.authorize();
-  });
-
-  btnLogout.addEventListener("click", function() {
-    logout();
-  });
-
-  retrieveProfile();
-}
-
-window.addEventListener("load", afterLoad);
+```bash
+http://localhost:3000/, http://localhost:8000/
 ```
 
-Get [the full example using this code](https://github.com/auth0-blog/es2015-rundown-example).
+Save these settings by scrolling down and clicking on **Save Changes**.
 
-Go ahead and check out our [Quick Start tutorials](https://auth0.com/docs/quickstarts) to learn how to implement authentication using different languages and frameworks in your apps.
+### Step 3: Adding Auth0 configuration variables to Node.js
+
+Under the project directory, create a hidden file called `.env` to store configuration variables and secrets that your app needs:
+
+```bash
+touch .env
+```
+
+Add the following to `.env`:
+
+```bash
+AUTH0_CLIENT_ID=
+AUTH0_DOMAIN=
+AUTH0_CLIENT_SECRET=
+SESSION_SECRET=
+AUTH0_CALLBACK_URL=http://localhost:3000/callback
+```
+
+- `AUTH0_DOMAIN` is your **Domain** value from the "Settings".
+
+- `AUTH0_CLIENT_ID` is your **Client ID** from the "Settings".
+
+- `AUTH0_CLIENT_SECRET` is your **Client Secret** from the "Settings".
+
+Execute the following command to generate a suitable string for the session secret:
+
+```bash
+node -e "console.log(crypto.randomBytes(32).toString('hex'))"
+```
+
+Copy and paste the output of the command above as the value for `SESSION_SECRET` in `.env`.
+
+**Make sure to add this `.env` file to `.gitignore` so that it isn't committed to version control**.
+
+## Run the Express Web App with Live Reload
+
+Run the server using `nodemon` under the hood:
+
+```bash
+npm run dev
+```
+
+In a separate terminal window, serve the client from a static server using Browsersync under the hood:
+
+```bash
+npm run ui
+```
+
+> Browsersync proxies the server running on port `8000` with `nodemon`. Check out the npm script commands present in `package.json` for more details.
+
+To see the app in action, visit [`http://localhost:3000`](http://localhost:3000) on your browser.
