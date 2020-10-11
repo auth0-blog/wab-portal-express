@@ -12,22 +12,16 @@ Learn how to secure a simple Node.js and Express app by adding user authenticati
 
 If you want to start from here with the app already built, follow these steps:
 
-- Clone the repo with `whatabyte-portal` as the local repo name:
+- Clone the repo and check out the `starter` branch:
 
 ```bash
-git clone git@github.com:auth0-blog/whatabyte-portal-node-express.git whatabyte-portal
+git clone -b starter git@github.com:auth0-blog/wab-portal-express.git
 ```
 
-- Make `whatabyte-portal` the current working directory:
+- Make `wab-portal-express` the current working directory:
 
 ```bash
-cd whatabyte-portal
-```
-
-- Check out the `create-basic-app` branch:
-
-```bash
-git checkout create-basic-app
+cd wab-portal-express
 ```
 
 - Install the project dependencies:
@@ -36,6 +30,18 @@ git checkout create-basic-app
 npm i
 ```
 
+Run the server using `nodemon` under the hood:
+
+```bash
+npm run dev
+```
+
+In a separate terminal window, serve the client from a static server using Browsersync under the hood:
+
+```bash
+npm run ui
+```
+To see the app in action, visit [`http://localhost:3000`](http://localhost:3000) on your browser.
 
 ## Auth0: Never Compromise on Identity
 
