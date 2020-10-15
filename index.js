@@ -6,6 +6,9 @@
 
 const express = require("express");
 const path = require("path");
+const { auth, requiresAuth } = require("express-openid-connect");
+
+require("dotenv").config();
 
 /**
  * App Variables
@@ -21,6 +24,15 @@ const port = process.env.PORT || "8000";
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
 app.use(express.static(path.join(__dirname, "public")));
+app.use(
+  auth({
+    issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
+    baseURL: process.env.BASE_URL,
+    clientID: process.env.AUTH0_CLIENT_ID,
+    secret: process.env.SESSION_SECRET,
+    authRequired: false,
+  })
+);
 
 /**
  * Routes Definitions
@@ -30,7 +42,7 @@ app.get("/", (req, res) => {
   res.render("index", { title: "Home" });
 });
 
-app.get("/user", (req, res) => {
+app.get("/user", requiresAuth(), (req, res) => {
   res.render("user", { title: "Profile", userProfile: { nickname: "Auth0" } });
 });
 

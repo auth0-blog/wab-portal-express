@@ -12,10 +12,13 @@
   "license": "ISC",
   "devDependencies": {
     "browser-sync": "^2.26.12",
-    "nodemon": "^2.0.4"
+    "nodemon": "^2.0.4",
+    "prettier": "^2.1.2"
   },
   "dependencies": {
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "express-openid-connect": "^2.0.0",
     "pug": "^3.0.0"
   }
 }
