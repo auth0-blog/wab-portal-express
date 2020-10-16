@@ -31,6 +31,7 @@ app.use(
     clientID: process.env.AUTH0_CLIENT_ID,
     secret: process.env.SESSION_SECRET,
     authRequired: false,
+    auth0Logout: true,
   })
 );
 
